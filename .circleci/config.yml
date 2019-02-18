@@ -21,10 +21,6 @@ variables:
     run:
       name: Install requirements for requests correctly
       command: pip install requests
-  kipoi_ls: &kipoi_ls
-    run:
-      name: List kipoi packages
-      command: kipoi ls
   run_tests: &run_tests
     run:
       name: Run tests
@@ -55,7 +51,6 @@ jobs:
       - *update_conda
       - *install_kipoi_utils
       - *install_kipoi_conda
-      - *kipoi_ls
       - *run_tests
       - *run_coveralls
       - *store_test_results
@@ -70,7 +65,6 @@ jobs:
       - *update_conda
       - *install_kipoi_utils
       - *install_kipoi_conda
-      - *kipoi_ls
       - *run_tests
       - *store_test_results
       - *store_test_artifacts
