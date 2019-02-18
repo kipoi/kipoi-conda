@@ -5,6 +5,14 @@ variables:
     run:
       name: Update conda
       command: conda update --yes conda
+  install_kipoi_utils: &install_kipoi_utils
+    run:
+      name: Install Kipoi Utils
+      command: |
+        git clone git@github.com:kipoi/kipoiutils.git kipoi_utils_pkg
+        cd kipoi_utils_pkg
+        pip install '.'
+        cd ..
   install_kipoi_conda: &install_kipoi_conda
     run:
       name: Install kipoi_conda
@@ -45,6 +53,7 @@ jobs:
     steps:
       - checkout
       - *update_conda
+      - *install_kipoi_utils
       - *install_kipoi_conda
       - *kipoi_ls
       - *run_tests
@@ -59,6 +68,7 @@ jobs:
     steps:
       - checkout
       - *update_conda
+      - *install_kipoi_utils
       - *install_kipoi_conda
       - *kipoi_ls
       - *run_tests

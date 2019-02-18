@@ -6,7 +6,8 @@ from setuptools import setup, find_packages
 requirements = [
     "six",
     "related",
-    "six"
+    "six",
+    "kipoi_conda>=0.1.0"
 ]
 
 test_requirements = [
