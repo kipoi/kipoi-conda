@@ -7,7 +7,7 @@ from kipoi_conda import Dependencies
 from kipoi_conda import (install_conda, install_pip, normalize_pip, parse_conda_package,
                          compatible_versions, is_installed, get_package_version, version_split)
 
-
+import kipoi_utils
 def fake_call_command(main_cmd, cmd_list, use_stdout=False, return_logs_with_stdout=False, **kwargs):
     return main_cmd, cmd_list
 
@@ -115,7 +115,7 @@ def test_create_env(monkeypatch):
     def fake_env_exists(env_name):
         return False
     monkeypatch.setattr(kipoi_conda.utils, 'env_exists', fake_env_exists)
-    monkeypatch.setattr(kipoi_conda.utils, '_call_command', fake_call_command)
+    monkeypatch.setattr(kipoi_utils.utils, '_call_command', fake_call_command)
 
     main_cmd, cmd_list = create_env(ENV_NAME, dependencies)
     assert main_cmd == 'conda'
@@ -141,7 +141,7 @@ def test_install(monkeypatch):
     conda_deps = ["python=3.6", "pep8"]
     pip_deps = ["tqdm"]
 
-    monkeypatch.setattr(kipoi_conda.utils, '_call_command', fake_call_command)
+    monkeypatch.setattr(kipoi_utils.utils, '_call_command', fake_call_command)
 
     main_cmd, cmd_list = install_conda(conda_deps)
     assert main_cmd == 'conda'
