@@ -7,8 +7,8 @@ from kipoi_conda import Dependencies
 from kipoi_conda import (install_conda, install_pip, normalize_pip, parse_conda_package,
                          compatible_versions, is_installed, get_package_version, version_split)
 
-
-def fake_call_command(main_cmd, cmd_list, use_stdout=False, return_logs_with_stdout=False, **kwargs):
+import kipoi_utils
+def fake_call_command(main_cmd, cmd_list, use_stdout=False, return_logs_with_stdout=False,dry_open=False, **kwargs):
     return main_cmd, cmd_list
 
 
@@ -108,23 +108,23 @@ def test_create_env(monkeypatch):
     dependencies = ["python=3.6", "numpy",
                     OrderedDict(pip=["tqdm"])
                     ]
-    ENV_NAME = "kipoi-test-env1"
+    ENV_NAME = "kipoi-test-awerwerwerwer"
 
     assert not env_exists(ENV_NAME)
 
     def fake_env_exists(env_name):
         return False
-    monkeypatch.setattr(kipoi_conda.utils, 'env_exists', fake_env_exists)
-    monkeypatch.setattr(kipoi_conda.utils, '_call_command', fake_call_command)
+    # monkeypatch.setattr(kipoi_conda.utils, 'env_exists', fake_env_exists)
+    # monkeypatch.setattr(kipoi_utils.utils, '_call_command', fake_call_command)
 
-    main_cmd, cmd_list = create_env(ENV_NAME, dependencies)
+    main_cmd, cmd_list = create_env(ENV_NAME, dependencies, dry_run=True)
     assert main_cmd == 'conda'
-    assert cmd_list == ['env', 'create', '--file', '/tmp/kipoi/kipoi-test-env1.yml']
+    assert cmd_list == ['env', 'create', '--file', '/tmp/kipoi/kipoi-test-awerwerwerwer.yml']
 
     # remove the environment
-    main_cmd, cmd_list = remove_env(ENV_NAME)
+    main_cmd, cmd_list = remove_env(ENV_NAME, dry_run=True)
     assert main_cmd == 'conda'
-    assert cmd_list == ['env', 'remove', '-y', '-n', 'kipoi-test-env1']
+    assert cmd_list == ['env', 'remove', '-y', '-n', 'kipoi-test-awerwerwerwer']
 
 
 def test_create_env_wrong_dependencies():
@@ -141,13 +141,13 @@ def test_install(monkeypatch):
     conda_deps = ["python=3.6", "pep8"]
     pip_deps = ["tqdm"]
 
-    monkeypatch.setattr(kipoi_conda.utils, '_call_command', fake_call_command)
+    # monkeypatch.setattr(kipoi_utils.utils, '_call_command', fake_call_command)
 
-    main_cmd, cmd_list = install_conda(conda_deps)
+    main_cmd, cmd_list = install_conda(conda_deps, dry_run=True)
     assert main_cmd == 'conda'
     assert cmd_list == ['install', '-y', '--channel=defaults', '--override-channels', 'pep8']
 
-    main_cmd, cmd_list = install_pip(pip_deps)
+    main_cmd, cmd_list = install_pip(pip_deps, dry_run=True)
     assert main_cmd == 'pip'
     assert cmd_list == ['install', 'tqdm']
 
