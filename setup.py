@@ -7,7 +7,7 @@ requirements = [
     "six",
     "related",
     "six",
-    "kipoi_utils>=0.1.4"
+    "kipoi_utils>=0.1.5"
 ]
 
 test_requirements = [
@@ -25,7 +25,7 @@ test_requirements = [
 desc = "kipoi-conda: conda/pip related functionality used by Kipoi"
 setup(
     name='kipoi_conda',
-    version='0.1.1',
+    version='0.1.2',
     description=desc,
     author="Kipoi team",
     author_email='avsec@in.tum.de',
