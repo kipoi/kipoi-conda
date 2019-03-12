@@ -25,7 +25,7 @@ class CondaError(Exception):
     pass
 
 
-def create_env(env_name, conda_deps):
+def create_env(env_name, conda_deps, dry_run=False):
     """Create new environment given parsed dependencies
 
     Args:
@@ -53,7 +53,7 @@ def create_env(env_name, conda_deps):
         f.write(yaml_ordered_dump(env_dict, indent=4, default_flow_style=False))
 
     # create the environment
-    return create_env_from_file(tmp_file_path)
+    return create_env_from_file(tmp_file_path, dry_run=dry_run)
 
 
 def get_env_path(env_name):
@@ -75,9 +75,9 @@ def get_kipoi_bin(env_name):
     return out_path
 
 
-def create_env_from_file(env_file):
+def create_env_from_file(env_file, dry_run=False):
     cmd_list = ["env", "create", "--file", env_file]
-    return _call_conda(cmd_list, use_stdout=True)
+    return _call_conda(cmd_list, use_stdout=True, dry_run=dry_run)
 
 
 def get_conda_version():
@@ -102,7 +102,7 @@ def get_conda_version():
     return out[0]
 
 
-def install_conda(conda_deps, channels=["defaults"]):
+def install_conda(conda_deps, channels=["defaults"], dry_run=False):
     """Install conda packages
 
     Args:
@@ -117,18 +117,18 @@ def install_conda(conda_deps, channels=["defaults"]):
             # `--override-channels` is here in order to increase reproducibility
             # on different computers with different ~/.condarc file
         cmd_list += conda_deps_wo_python
-        return _call_conda(cmd_list, use_stdout=True)
+        return _call_conda(cmd_list, use_stdout=True, dry_run=dry_run)
 
 
-def install_pip(pip_deps):
+def install_pip(pip_deps, dry_run=False):
     if pip_deps:
         cmd_list = ["install"] + list(pip_deps)
-        return _call_pip(cmd_list, use_stdout=True)
+        return _call_pip(cmd_list, use_stdout=True, dry_run=dry_run)
 
 
-def remove_env(env_name):
+def remove_env(env_name, dry_run=False):
     cmd_list = ["env", "remove", "-y", "-n", env_name]
-    return _call_conda(cmd_list, use_stdout=True)
+    return _call_conda(cmd_list, use_stdout=True, dry_run=dry_run)
 
 
 def get_envs():
@@ -144,16 +144,16 @@ def env_exists(env):
     return env in [os.path.basename(x) for x in get_envs()]
 
 
-def _call_conda(extra_args, use_stdout=False, return_logs_with_stdout=False):
-    return _call_command("conda", extra_args, use_stdout, return_logs_with_stdout)
+def _call_conda(extra_args, use_stdout=False, return_logs_with_stdout=False, dry_run=False):
+    return _call_command("conda", extra_args, use_stdout, return_logs_with_stdout, dry_run=dry_run)
 
 
-def _call_pip(extra_args, use_stdout=False):
-    return _call_command("pip", extra_args, use_stdout)
+def _call_pip(extra_args, use_stdout=False, dry_run=False):
+    return _call_command("pip", extra_args, use_stdout, dry_run=dry_run)
 
 
-def _call_and_parse(extra_args):
-    stdout, stderr = _call_conda(extra_args)
+def _call_and_parse(extra_args, dry_run=False):
+    stdout, stderr = _call_conda(extra_args, dry_run=dry_run)
     if stderr.decode().strip():
         raise Exception('conda %r:\nSTDERR:\n%s\nEND' % (extra_args,
                                                          stderr.decode()))
