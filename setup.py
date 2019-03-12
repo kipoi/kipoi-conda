@@ -7,7 +7,7 @@ requirements = [
     "six",
     "related",
     "six",
-    "kipoi_utils>=0.1.4"
+    "kipoi_utils>=0.1.5"
 ]
 
 test_requirements = [
