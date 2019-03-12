@@ -12,6 +12,7 @@ import subprocess
 from subprocess import Popen, PIPE, STDOUT
 from collections import OrderedDict
 from kipoi_utils import yaml_ordered_dump, unique_list
+from kipoi_utils.utils import _call_command
 import six
 import logging
 
@@ -101,50 +102,6 @@ def get_conda_version():
     return out[0]
 
 
-# Already implemented in get_kipoi_bin
-#
-# def get_cli_path(env):
-#     import tempfile
-#     tempfile_env = tempfile.mkstemp()[1]
-
-#     queries = {}
-#     queries["unix"] = []
-#     queries["unix"].append("source activate {env} && which kipoi > {tf}".format(env=env, tf=tempfile_env))
-#     queries["unix"].append(". activate {env} && which kipoi > {tf}".format(env=env, tf=tempfile_env))
-#     queries["unix"].append("conda activate {env} && which kipoi > {tf}".format(env=env, tf=tempfile_env))
-#     queries["nt"] = ["activate {env} && where kipoi > {tf}".format(env=env, tf=tempfile_env)]
-
-#     # Compile query for location of kipoi cli
-#     sel_queries = queries["unix"]
-#     if os.name == 'nt':
-#         # Windows query
-#         sel_queries = queries["nt"]
-
-#     success = False
-#     for q in sel_queries:
-#         # Query system. Can't use Popen as environment has to be activated first
-#         ret_code = os.system(q)
-
-#         # Check it has worked
-#         if (ret_code == 0) and os.path.exists(tempfile_env):
-#             success = True
-#             break
-
-#     if not success:
-#         raise Exception("Could not retrieve list of conda environments. Please check conda installation.")
-
-#     try:
-#         # Read output
-#         with open(tempfile_env, "r") as fh:
-#             cli_path = fh.readlines()[0].rstrip()
-#     except IndexError:
-#         cli_path = None
-#     finally:
-#         # Delete tempfile
-#         os.unlink(tempfile_env)
-
-#     return cli_path
-
 
 def install_conda(conda_deps, channels=["defaults"]):
     """Install conda packages
@@ -186,44 +143,6 @@ def get_envs():
 
 def env_exists(env):
     return env in [os.path.basename(x) for x in get_envs()]
-
-
-def _call_command(cmd, extra_args, use_stdout=False,
-                  return_logs_with_stdout=False, **kwargs):
-    """
-    Args:
-      return_logs_with_stdout (bool): If True, return also the logged lines
-          (it only takes an effect with use_stdout)
-    """
-    # call conda with the list of extra arguments, and return the tuple
-    # stdout, stderr
-    cmd_list = [cmd]  # just use whatever conda is on the path
-
-    cmd_list.extend(extra_args)
-
-    try:
-        if use_stdout:
-            p = Popen(cmd_list, stdout=PIPE, universal_newlines=True, **kwargs)
-            # Poll process for new output until finished
-            if return_logs_with_stdout:
-                out = []
-            for stdout_line in iter(p.stdout.readline, ""):
-                print(stdout_line, end='')
-                if return_logs_with_stdout:
-                    out.append(stdout_line.rstrip())
-            p.stdout.close()
-            return_code = p.wait()
-            if return_code:
-                raise subprocess.CalledProcessError(return_code, cmd_list)
-            if return_logs_with_stdout:
-                return return_code, out
-            else:
-                return return_code
-        else:
-            p = Popen(cmd_list, stdout=PIPE, stderr=PIPE, **kwargs)
-    except OSError:
-        raise Exception("could not invoke {0}\n".format(cmd_list))
-    return p.communicate()
 
 
 def _call_conda(extra_args, use_stdout=False, return_logs_with_stdout=False):
