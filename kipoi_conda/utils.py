@@ -77,7 +77,7 @@ def get_kipoi_bin(env_name):
 
 def create_env_from_file(env_file, dry_run=False):
     cmd_list = ["env", "create", "--file", env_file]
-    return _call_conda(cmd_list, use_stdout=True, dry_run=dry_run)
+    return _call_conda(cmd_list, dry_run=dry_run)
 
 
 def get_conda_version():
