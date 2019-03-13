@@ -126,7 +126,7 @@ def test_create_env(monkeypatch):
     assert main_cmd == 'conda'
     assert cmd_list == ['env', 'remove', '-y', '-n', 'kipoi-test-awerwerwerwer']
 
-
+@pytest.mark.xfail
 def test_create_env_wrong_dependencies():
     dependencies = ["python=3.6", "numpyxzy"]
     ENV_NAME = "kipoi-test-env2"
