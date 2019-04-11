@@ -9,7 +9,7 @@ import os
 import json
 import sys
 import subprocess
-from subprocess import Popen, PIPE, STDOUT
+from subprocess import Popen, PIPE, STDOUT, check_output
 from collections import OrderedDict
 from kipoi_utils import yaml_ordered_dump, unique_list
 from kipoi_utils.utils import _call_command
@@ -136,7 +136,8 @@ def get_envs():
     Return all of the (named) environment (this does not include the root
     environment), as a list of absolute path to their prefixes.
     """
-    info = _call_and_parse(['info', '--json'])
+    json_str = check_output(["conda", "info", "--json"]).decode()
+    info = json.loads(json_str)
     return info['envs']
 
 
@@ -154,7 +155,8 @@ def _call_pip(extra_args, use_stdout=False, dry_run=False):
 
 def _call_and_parse(extra_args, dry_run=False):
     stdout, stderr = _call_conda(extra_args, dry_run=dry_run)
-    if stderr.decode().strip():
+
+    if stderr.strip():
         raise Exception('conda %r:\nSTDERR:\n%s\nEND' % (extra_args,
                                                          stderr.decode()))
     return json.loads(stdout.decode())
