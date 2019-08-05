@@ -20,6 +20,9 @@ logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
 
 
+
+
+
 class CondaError(Exception):
     "General Conda error"
     pass
@@ -56,11 +59,55 @@ def create_env(env_name, conda_deps, dry_run=False):
     return create_env_from_file(tmp_file_path, dry_run=dry_run)
 
 
+
 def get_env_path(env_name):
     for env in get_envs():
         if os.path.basename(env) == env_name:
             return env
     return None
+
+
+def call_script_in_env(filename, env_name=None, use_current_python=False, args=None, cwd=None): 
+    """run an python script in a certain conda enviroment in a background
+    process.
+    
+    Args:
+        filename (str): path to the python script
+        env_name (str or None, optional): Name of the conda enviroment.
+        use_current_python (bool, False) If true, the current python executable will be used
+        (this is useful for testing purposes )
+        args (None, optional): args to pass to the script
+    
+    Returns:
+        Popen: instance of Popen / running program
+    """
+
+
+    def activate_env(env_name=None,env_path=None):
+        if env_path is None:
+            assert env_name is not None
+            env_path = get_env_path(env_name)
+        bin_path = os.path.join(env_path,'bin')
+        new_env = os.environ.copy()
+        new_env['PATH'] = bin_path + os.pathsep + new_env['PATH']
+
+    if use_current_python:
+        python_path = sys.executable
+    else:
+        env_path = get_env_path(env_name=env_name)
+        activate_env(env_path=env_path)
+        python_path = os.path.join(env_path,'bin','python')
+
+    #subprocess.run(, shell=True)
+    # The os.setsid() is passed in the argument preexec_fn so
+    # it's run after the fork() and before  exec() to run the shell.
+    if args is None:
+        args = []
+    
+    pro = subprocess.Popen([python_path, filename] + list(args), stdout=subprocess.PIPE, 
+                           shell=False, close_fds=True,  preexec_fn=os.setsid,cwd=cwd)
+    return pro
+
 
 
 def get_kipoi_bin(env_name):
