@@ -2,9 +2,10 @@
 """
 from collections import OrderedDict
 import pytest
+import tempfile
 import kipoi_conda
 from kipoi_conda import Dependencies
-from kipoi_conda import (install_conda, install_pip, normalize_pip, parse_conda_package,
+from kipoi_conda import (install_conda, call_script_in_env,install_pip, normalize_pip, parse_conda_package,
                          compatible_versions, is_installed, get_package_version, version_split)
 
 import kipoi_utils
@@ -203,3 +204,16 @@ def test_dependencies_all_installed():
     assert not Dependencies(conda=["related>0.1"], pip=["kipoi_conda>=10.1"]).all_installed()
     assert not Dependencies(conda=["related>0.1"], pip=["kipoi_conda>=10.1"]).all_installed(verbose=True)
     assert not Dependencies(conda=["package_doesnt_exist>0.1"], pip=["kipoi_conda>=10.1"]).all_installed(verbose=True)
+
+
+script = R"""
+import kipoi
+if __name__ == "__main__":
+    return 0
+"""
+
+def test_call_script_in_env():
+
+    with  tempfile.NamedTemporaryFile(mode='w') as f:
+        f.write(script)
+        kipoi_conda.call_script_in_env(f.name, use_current_python=True)
