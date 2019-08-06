@@ -13,6 +13,11 @@ variables:
         cd kipoi_utils_pkg
         pip install '.'
         cd ..
+  install_psutils: &install_psutils
+    run:
+      name: Install psutil
+      command: |
+        conda install psutil --yes
   install_kipoi_conda: &install_kipoi_conda
     run:
       name: Install kipoi_conda
