@@ -54,6 +54,7 @@ jobs:
     steps:
       - checkout
       - *update_conda
+      - *install_psutils
       - *install_kipoi_utils
       - *install_kipoi_conda
       - *run_tests
