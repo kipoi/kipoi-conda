@@ -4,9 +4,7 @@
 from setuptools import setup, find_packages
 
 requirements = [
-    "six",
     "related",
-    "six",
     "kipoi_utils>=0.3.0"
 ]
 
