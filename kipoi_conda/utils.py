@@ -13,7 +13,6 @@ from subprocess import Popen, PIPE, STDOUT, check_output
 from collections import OrderedDict
 from kipoi_utils import yaml_ordered_dump, unique_list
 from kipoi_utils.utils import _call_command
-import six
 import logging
 
 logger = logging.getLogger(__name__)
@@ -265,7 +264,7 @@ def normalize_pip(pip_list):
             d_list[package] = unique_list(d_list[package] + versions)
         else:
             d_list[package] = versions
-    return [package + ",".join(versions) for package, versions in six.iteritems(d_list)]
+    return [package + ",".join(versions) for package, versions in d_list.iteritems()]
 
 
 def get_package_version(package):
