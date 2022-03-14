@@ -5,10 +5,15 @@ variables:
     run:
       name: Update conda
       command: conda update --yes conda
+  create_conda_env: &create_conda_env
+    run:
+      name: create conda env
+      command: conda create -n kipoi-dev python=3.10
   install_kipoi_utils: &install_kipoi_utils
     run:
       name: Install Kipoi Utils
       command: |
+        source activate kipoi-dev
         git clone git@github.com:kipoi/kipoi-utils kipoi_utils_pkg
         cd kipoi_utils_pkg
         pip install '.'
@@ -17,25 +22,33 @@ variables:
     run:
       name: Install psutil
       command: |
+        source activate kipoi-dev
         conda install psutil --yes
   install_kipoi_conda: &install_kipoi_conda
     run:
       name: Install kipoi_conda
-      command: pip install '.[develop]'
+      command: |
+        source activate kipoi-dev
+        pip install '.[develop]'
   install_requests: &install_requests
     run:
       name: Install requirements for requests correctly
-      command: pip install requests
+      command: |
+        source activate kipoi-dev
+        pip install requests
   run_tests: &run_tests
     run:
       name: Run tests
       command: |
         mkdir test-reports
+        source activate kipoi-dev
         py.test --cov=kipoi_conda/ tests/ -n 1 --no-cov-on-fail --junitxml=test-reports/junit.xml
   run_coveralls: &run_coveralls
     run:
       name: run coveralls
-      command: coveralls || true
+      command: 
+        source activate kipoi-dev
+        coveralls || true
   store_test_results: &store_test_results
     store_test_results:
       path: test-reports
@@ -54,6 +67,7 @@ jobs:
     steps:
       - checkout
       - *update_conda
+      - *create_conda_env
       - *install_psutils
       - *install_kipoi_utils
       - *install_kipoi_conda
