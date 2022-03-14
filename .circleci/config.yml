@@ -9,7 +9,7 @@ variables:
     run:
       name: Install Kipoi Utils
       command: |
-        git clone git@github.com:kipoi/kipoi-utils.git@remove-imp kipoi_utils_pkg
+        git clone git@github.com:kipoi/kipoi-utils kipoi_utils_pkg
         cd kipoi_utils_pkg
         pip install '.'
         cd ..
