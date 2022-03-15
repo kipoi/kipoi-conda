@@ -55,12 +55,40 @@ variables:
   store_test_artifacts: &store_test_artifacts
     store_artifacts:
       path: test-reports
-      destination: test-reports
+      destination: test-reports    
+  build_pypi_package: &build_pypi_package
+    run:
+      name: build python packages
+      command: |
+        source activate kipoi-dev
+        python setup.py sdist bdist_wheel
+  conda_install_twine: &conda_install_twine
+    run:
+      name: Install twine
+      command: |
+        source activate kipoi-dev
+        conda install twine
+  pypi_create_pypirc: &pypi_create_pypirc
+    run:
+      name: init .pypirc
+      command: |
+        echo -e "[distutils]" >> ~/.pypirc
+        echo -e "index-servers = " >> ~/.pypirc
+        echo -e "    pypi" >> ~/.pypirc
+        echo -e "    testpypi" >> ~/.pypirc
+        echo -e "" >> ~/.pypirc
+        echo -e "[testpypi]" >> ~/.pypirc
+        echo -e "repository: https://test.pypi.org/legacy/" >> ~/.pypirc
+        echo -e "username: $TEST_PYPI_USERNAME" >> ~/.pypirc
+        echo -e "password: $TEST_PYPI_PASSWORD" >> ~/.pypirc
+        echo -e "[pypi]" >> ~/.pypirc
+        echo -e "username: $PYPI_USERNAME" >> ~/.pypirc
+        echo -e "password: $PYPI_PASSWORD" >> ~/.pypirc
 
 
 jobs:
 
-  test-py36:
+  test-py310:
     docker:
       - image: continuumio/miniconda3:latest
     working_directory: ~/repo
@@ -74,53 +102,84 @@ jobs:
       - *run_tests
       - *run_coveralls
       - *store_test_results
-      - *store_test_artifacts
+      - *store_test_artifacts  
+  test-deploy-pypi:
+    docker:
+      - image: continuumio/miniconda3:latest
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - *update_conda
+      - *create_conda_env
+      - *install_psutils
+      - *install_kipoi_utils
+      - *install_kipoi_conda
+      - *run_tests
+      - *build_pypi_package
+      - *conda_install_twine
+      - *pypi_create_pypirc
+      - run:
+          name: check if commit is tagged
+          command: git describe --exact-match --tags HEAD && echo "commit is tagged; continuing" || circleci step halt
+      - run:
+          name: upload to TestPyPI
+          command: twine upload --repository testpypi dist/* --verbose
+      - run:
+          name: pip install from TestPyPI
+          command: |
+            source activate kipoi-dev
+            python -m pip install --user --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple kipoi_conda --verbose
+            python -c "import kipoi_conda; print(kipoi_conda.__version__)"    
+  productive-deploy-pypi:
+    docker:
+      - image: continuumio/miniconda3:latest
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - *update_conda
+      - *create_conda_env
+      - *install_psutils
+      - *install_kipoi_utils
+      - *install_kipoi_conda
+      - *run_tests
+      - *build_pypi_package
+      - *conda_install_twine
+      - *pypi_create_pypirc
+      - run:
+          name: check if commit is tagged
+          command: git describe --exact-match --tags HEAD && echo "commit is tagged; continuing" || circleci step halt
+      - run:
+          name: upload to PyPI
+          command: |
+            source activate kipoi-dev
+            twine upload --repository pypi dist/* --verbose
+      - run:
+          name: pip install from PyPI
+          command: |
+            source activate kipoi-dev
+            python -m pip install --user kipoi_conda --verbose
+            python -c "import kipoi_conda; print(kipoi_conda.__version__)"   
 
-
-  # build-deploy-docs:
-  #   docker:
-  #     # - image: continuumio/miniconda3:4.3.14
-  #     - image: continuumio/miniconda3:4.5.12
-  #     # - image: continuumio/anaconda3:5.0.1
-  #     # - image: circleci/python:3.5
-  #   working_directory: ~/repo
-  #   steps:
-  #     - add_ssh_keys:
-  #         fingerprints:
-  #           - e3:44:16:ec:72:df:ae:59:82:c2:ee:57:4a:52:71:aa
-  #     - checkout
-  #     - run:
-  #         name: Install pip Kipoi
-  #         command: pip install git+https://github.com/kipoi/kipoi@master
-  #     - run:
-  #         name: Install pip kipoi_conda
-  #         command: pip install -e .
-  #     - run:
-  #         name: Install build deps
-  #         # use custom pydoc-markdown
-  #         command: pip install nbconvert mkdocs git+https://github.com/kipoi/pydoc-markdown@master
-  #     - run:
-  #         name: Build docs
-  #         command: |
-  #           cd docs/
-  #           mkdir -p theme_dir/img/ipynb/
-  #           ./render_ipynb.bash
-  #           pydocmd build
-  #     - run:
-  #         name: Deploy docs
-  #         command: .circleci/deploy_docs.bash
 
 workflows:
   version: 2
   test:
     jobs:
-      - test-py36
-      # - build-deploy-docs:
-      #     requires:
-      #       - test-py36
-      #       - test-py27
-      #     filters:
-      #       branches:
-      #         only:
-      #           - master
-      #           - test_deployment_script
+      - test-py310  
+  test-n-deploy:
+    jobs:
+      - test-py310
+      - test-deploy-pypi:
+          requires:
+            - test-py310
+          filters:
+            branches:
+              only:
+                - add-pypi-deployment
+      - productive-deploy-pypi:
+          requires:
+            - test-py310
+          filters:
+            branches:
+              only:
+                - master
