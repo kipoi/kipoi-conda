@@ -63,7 +63,7 @@ def create_env(env_name, conda_deps, dry_run=False):
         f.write(yaml_ordered_dump(env_dict, indent=4, default_flow_style=False))
 
     # create the environment
-    return create_env_from_file(tmp_file_path, dry_run=dry_run)
+    return create_env_from_file(tmp_file_path, dry_run=dry_run, mamba=False)
 
 
 
