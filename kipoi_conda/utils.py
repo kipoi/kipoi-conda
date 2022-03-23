@@ -21,6 +21,7 @@ logger.addHandler(logging.NullHandler())
 def _call_mamba(
     extra_args, use_stdout=False, return_logs_with_stdout=False, dry_run=False
 ):
+    logger.info("Using mamba")
     return _call_command(
         "mamba",
         extra_args,
