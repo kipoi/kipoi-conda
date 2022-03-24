@@ -120,7 +120,7 @@ def create_env_from_file(env_file, use_stdout=False, dry_run=False, mamba=False)
     cmd_list = ["env", "create", "--file", env_file]
     if mamba:
         cmd_list.append("--experimental-solver=libmamba")
-        return _call_mamba(cmd_list, use_stdout=use_stdout, dry_run=dry_run)
+        return _call_conda(cmd_list, use_stdout=use_stdout, dry_run=dry_run)
     else:      
         return _call_conda(cmd_list, use_stdout=use_stdout, dry_run=dry_run)
 
