@@ -17,20 +17,6 @@ logger.addHandler(logging.NullHandler())
 
 
 
-
-def _call_mamba(
-    extra_args, use_stdout=False, return_logs_with_stdout=False, dry_run=False
-):
-    logger.info("Using mamba")
-    return _call_command(
-        "mamba",
-        extra_args,
-        use_stdout,
-        return_logs_with_stdout,
-        dry_run=dry_run,
-    )
-
-
 class CondaError(Exception):
     "General Conda error"
     pass
@@ -133,6 +119,7 @@ def get_kipoi_bin(env_name):
 def create_env_from_file(env_file, use_stdout=False, dry_run=False, mamba=False):
     cmd_list = ["env", "create", "--file", env_file]
     if mamba:
+        cmd_list.append("--experimental-solver=libmamba")
         return _call_mamba(cmd_list, use_stdout=use_stdout, dry_run=dry_run)
     else:      
         return _call_conda(cmd_list, use_stdout=use_stdout, dry_run=dry_run)
