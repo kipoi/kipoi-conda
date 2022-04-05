@@ -17,8 +17,6 @@ logger.addHandler(logging.NullHandler())
 
 
 
-
-
 class CondaError(Exception):
     "General Conda error"
     pass
@@ -189,8 +187,15 @@ def env_exists(env):
 
 
 def _call_conda(extra_args, use_stdout=False, return_logs_with_stdout=False, dry_run=False):
-    return _call_command("conda", extra_args, use_stdout, return_logs_with_stdout, dry_run=dry_run)
-
+    output = ''
+    try:
+        extra_args.append("--experimental-solver=libmamba")
+        output = _call_command("conda", extra_args, use_stdout, return_logs_with_stdout, dry_run=dry_run)
+    except:
+        print("Trying conda without libmamba solver")
+        extra_args = extra_args[:-1]
+        output = _call_command("conda", extra_args, use_stdout, return_logs_with_stdout, dry_run=dry_run)
+    return output
 
 def _call_pip(extra_args, use_stdout=False, dry_run=False):
     return _call_command("pip", extra_args, use_stdout, dry_run=dry_run)
