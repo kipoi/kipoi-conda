@@ -5,6 +5,10 @@ variables:
     run:
       name: Update conda
       command: conda update --yes conda
+  install_libmambasolver: &install_libmambasolver
+    run:
+      name: Install libmambasolver
+      command: conda install -n base conda-libmamba-solver
   create_conda_env: &create_conda_env
     run:
       name: create conda env
@@ -95,6 +99,7 @@ jobs:
     steps:
       - checkout
       - *update_conda
+      - *install_libmambasolver
       - *create_conda_env
       - *install_psutils
       - *install_kipoi_utils
@@ -110,6 +115,7 @@ jobs:
     steps:
       - checkout
       - *update_conda
+      - *install_libmambasolver
       - *create_conda_env
       - *install_psutils
       - *install_kipoi_utils
@@ -137,6 +143,7 @@ jobs:
     steps:
       - checkout
       - *update_conda
+      - *install_libmambasolver
       - *create_conda_env
       - *install_psutils
       - *install_kipoi_utils
