@@ -189,9 +189,11 @@ def env_exists(env):
 def _call_conda(extra_args, use_stdout=False, return_logs_with_stdout=False, dry_run=False):
     output = ''
     try:
-        output = _call_command("conda", extra_args.append("--experimental-solver=libmamba"), use_stdout, return_logs_with_stdout, dry_run=dry_run)
+        extra_args.append("--experimental-solver=libmamba")
+        output = _call_command("conda", extra_args, use_stdout, return_logs_with_stdout, dry_run=dry_run)
     except:
         print("Trying conda without libmamba solver")
+        extra_args = extra_args[:-1]
         output = _call_command("conda", extra_args, use_stdout, return_logs_with_stdout, dry_run=dry_run)
     return output
 

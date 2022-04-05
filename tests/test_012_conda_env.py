@@ -120,12 +120,12 @@ def test_create_env(monkeypatch):
 
     main_cmd, cmd_list = create_env(ENV_NAME, dependencies, dry_run=True)
     assert main_cmd == 'conda'
-    assert cmd_list == ['env', 'create', '--file', '/tmp/kipoi/kipoi-test-awerwerwerwer.yml']
+    assert cmd_list == ['env', 'create', '--file', '/tmp/kipoi/kipoi-test-awerwerwerwer.yml', '--experimental-solver=libmamba']
 
     # remove the environment
     main_cmd, cmd_list = remove_env(ENV_NAME, dry_run=True)
     assert main_cmd == 'conda'
-    assert cmd_list == ['env', 'remove', '-y', '-n', 'kipoi-test-awerwerwerwer']
+    assert cmd_list == ['env', 'remove', '-y', '-n', 'kipoi-test-awerwerwerwer', '--experimental-solver=libmamba']
 
 @pytest.mark.xfail
 def test_create_env_wrong_dependencies():
