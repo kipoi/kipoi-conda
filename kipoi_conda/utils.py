@@ -116,13 +116,9 @@ def get_kipoi_bin(env_name):
     return out_path
 
 
-def create_env_from_file(env_file, use_stdout=False, dry_run=False, mamba=False):
+def create_env_from_file(env_file, use_stdout=False, dry_run=False):
     cmd_list = ["env", "create", "--file", env_file]
-    if mamba:
-        cmd_list.append("--experimental-solver=libmamba")
-        return _call_conda(cmd_list, use_stdout=use_stdout, dry_run=dry_run)
-    else:      
-        return _call_conda(cmd_list, use_stdout=use_stdout, dry_run=dry_run)
+    return _call_conda(cmd_list, use_stdout=use_stdout, dry_run=dry_run)
 
 
 def get_conda_version():
@@ -191,7 +187,12 @@ def env_exists(env):
 
 
 def _call_conda(extra_args, use_stdout=False, return_logs_with_stdout=False, dry_run=False):
-    return _call_command("conda", extra_args, use_stdout, return_logs_with_stdout, dry_run=dry_run)
+    extra_args_mamba = extra_args.append("--experimental-solver=libmamba")
+    try:
+        _call_command("conda", extra_args, use_stdout, return_logs_with_stdout, dry_run=dry_run)
+    except:
+        print("Trying conda without libmamba solver")
+        _call_command("conda", extra_args[:-1], use_stdout, return_logs_with_stdout, dry_run=dry_run)
 
 
 def _call_pip(extra_args, use_stdout=False, dry_run=False):
