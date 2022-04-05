@@ -23,7 +23,7 @@ test_requirements = [
 desc = "kipoi-conda: conda/pip related functionality used by Kipoi"
 setup(
     name='kipoi_conda',
-    version='0.2.3',
+    version='0.3.0',
     description=desc,
     author="Kipoi team",
     author_email='avsec@in.tum.de',
