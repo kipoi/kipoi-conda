@@ -146,7 +146,7 @@ def test_install(monkeypatch):
 
     main_cmd, cmd_list = install_conda(conda_deps, dry_run=True)
     assert main_cmd == 'conda'
-    assert cmd_list == ['install', '-y', '--channel=defaults', '--override-channels', 'pep8']
+    assert cmd_list == ['install', '-y', '--channel=defaults', '--override-channels', 'pep8', '--experimental-solver=libmamba']
 
     main_cmd, cmd_list = install_pip(pip_deps, dry_run=True)
     assert main_cmd == 'pip'
