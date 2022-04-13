@@ -192,7 +192,9 @@ def _call_conda(extra_args, use_stdout=False, return_logs_with_stdout=False, dry
         extra_args.append("--experimental-solver=libmamba")
         output = _call_command("conda", extra_args, use_stdout, return_logs_with_stdout, dry_run=dry_run)
     except:
-        print("Trying conda without libmamba solver")
+        print("It is expected to run slower as we are proceeding without libmamba solver. " \
+              "To install libmamba solver, make sure conda>=4.12.0 and run the following - conda " \
+              "install -n base conda-libmamba-solver")        
         extra_args = extra_args[:-1]
         output = _call_command("conda", extra_args, use_stdout, return_logs_with_stdout, dry_run=dry_run)
     return output
