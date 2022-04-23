@@ -193,7 +193,6 @@ workflows:
             branches:
               only:
                 - add-pypi-deployment   
-                - add-more-python-versions             
       - productive-deploy-pypi:
           requires:
             - test
@@ -201,4 +200,3 @@ workflows:
             branches:
               only:
                 - master
-                - add-more-python-versions
