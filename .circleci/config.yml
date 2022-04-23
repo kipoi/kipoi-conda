@@ -91,7 +91,7 @@ variables:
 
 jobs:
 
-  test-py310:
+  test:
     parameters:
       python-version:
         type: string
@@ -182,13 +182,13 @@ workflows:
   version: 2.1
   test:
     jobs:
-      - test-py310:
+      - test:
           matrix:
             parameters:
               python-version: ["3.8", "3.9", "3.10"]
       - test-deploy-pypi:
           requires:
-            - test-py310
+            - test
           filters:
             branches:
               only:
@@ -196,7 +196,7 @@ workflows:
                 - add-more-python-versions             
       - productive-deploy-pypi:
           requires:
-            - test-py310
+            - test
           filters:
             branches:
               only:
