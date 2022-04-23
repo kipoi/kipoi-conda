@@ -1,4 +1,4 @@
-version: 2
+version: 2.1
 
 variables:
   update_conda: &update_conda
@@ -12,7 +12,7 @@ variables:
   create_conda_env: &create_conda_env
     run:
       name: create conda env
-      command: conda create -n kipoi-dev python=3.10
+      command: conda create -n kipoi-dev python=<< parameters.python-version >>
   install_kipoi_utils: &install_kipoi_utils
     run:
       name: Install Kipoi Utils
@@ -89,10 +89,12 @@ variables:
         echo -e "username: $PYPI_USERNAME" >> ~/.pypirc
         echo -e "password: $PYPI_PASSWORD" >> ~/.pypirc
 
-
 jobs:
 
   test-py310:
+    parameters:
+      python-version:
+        type: string
     docker:
       - image: continuumio/miniconda3:latest
     working_directory: ~/repo
@@ -109,6 +111,10 @@ jobs:
       - *store_test_results
       - *store_test_artifacts  
   test-deploy-pypi:
+    parameters:
+      python-version:
+        type: string
+        default: "3.9"
     docker:
       - image: continuumio/miniconda3:latest
     working_directory: ~/repo
@@ -137,6 +143,10 @@ jobs:
             python -m pip install --user --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple kipoi_conda --verbose
             python -c "import kipoi_conda; print(kipoi_conda.__version__)"    
   productive-deploy-pypi:
+    parameters:
+      python-version:
+        type: string
+        default: "3.9"
     docker:
       - image: continuumio/miniconda3:latest
     working_directory: ~/repo
@@ -169,20 +179,20 @@ jobs:
 
 
 workflows:
-  version: 2
+  version: 2.1
   test:
     jobs:
-      - test-py310  
-  test-n-deploy:
-    jobs:
-      - test-py310
+      - test-py310:
+          matrix:
+            parameters:
+              python-version: ["3.8", "3.9", "3.10"]
       - test-deploy-pypi:
           requires:
             - test-py310
           filters:
             branches:
               only:
-                - add-pypi-deployment
+                - add-pypi-deployment                
       - productive-deploy-pypi:
           requires:
             - test-py310
