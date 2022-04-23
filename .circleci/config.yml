@@ -50,7 +50,7 @@ variables:
   run_coveralls: &run_coveralls
     run:
       name: run coveralls
-      command: 
+      command: |
         source activate kipoi-dev
         coveralls || true
   store_test_results: &store_test_results
