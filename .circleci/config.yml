@@ -192,7 +192,8 @@ workflows:
           filters:
             branches:
               only:
-                - add-pypi-deployment                
+                - add-pypi-deployment   
+                - add-more-python-versions             
       - productive-deploy-pypi:
           requires:
             - test-py310
@@ -200,3 +201,4 @@ workflows:
             branches:
               only:
                 - master
+                - add-more-python-versions
