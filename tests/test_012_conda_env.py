@@ -107,7 +107,7 @@ def test_create_env(monkeypatch):
     from kipoi_conda.utils import create_env, env_exists, remove_env
     # monkeypatch.setattr(kipoi_conda.utils, '_call_and_parse', fake_call_command)
     dependencies = ["python=3.6", "numpy",
-                    OrderedDict(pip=["tqdm"])
+                    OrderedDict(pip=["tqdm=4.64.1"])
                     ]
     ENV_NAME = "kipoi-test-awerwerwerwer"
 
