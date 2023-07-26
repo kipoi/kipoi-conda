@@ -172,13 +172,15 @@ def remove_env(env_name, dry_run=False):
     return _call_conda(cmd_list, use_stdout=True, dry_run=dry_run)
 
 
-def get_envs():
+def get_envs(is_logging = False):
     """
     Return all of the (named) environment (this does not include the root
     environment), as a list of absolute path to their prefixes.
     """
     json_str = check_output(["conda", "info", "--json"]).decode()
+    logger.info("conda info --json: " + json_str)
     info = json.loads(json_str)
+    logger.info("conda info --json: " + str(info))
     return info['envs']
 
 
