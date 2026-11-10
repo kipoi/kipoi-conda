@@ -5,7 +5,8 @@ from setuptools import setup, find_packages
 
 requirements = [
     "related",
-    "kipoi_utils>=0.3.0"
+    "kipoi_utils>=0.3.0",
+    "packaging"
 ]
 
 test_requirements = [

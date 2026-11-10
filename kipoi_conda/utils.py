@@ -280,15 +280,15 @@ def get_package_version(package):
     # Returns
       (str) if the package is installed and None otherwise
     """
-    import pkg_resources
+    from importlib.metadata import version, PackageNotFoundError
     try:
-        return pkg_resources.get_distribution(package).version
-    except pkg_resources.DistributionNotFound:
+        return version(package)
+    except PackageNotFoundError:
         return None
 
 
 def compatible_versions(installed_version, req_version):
-    from pkg_resources import parse_version
+    from packaging.version import parse as parse_version
     installed_version = parse_version(installed_version)
     if req_version.startswith(">="):
         return installed_version >= parse_version(req_version[2:])
